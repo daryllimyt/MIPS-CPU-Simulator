@@ -38,7 +38,8 @@ MIPS_LDFLAGS = -nostdlib -Wl,-melf32btsmip -march=mips1 -nostartfiles -mno-check
 #----------------------------------------------------
 # Build simulator, write output file in bin folder as mips_simulator
 
-SRC_FILES = src/simulator.cpp src/r_type_instructions.cpp src/i_type_instructions.cpp  src/j_type_instructions.cpp
+SRC_FILES = src/simulator.cpp src/functions.cpp src/r_type_instructions.cpp src/i_type_instructions.cpp  src/j_type_instructions.cpp
+DEBUG_SETTING = 0
 
 bin/mips_simulator: $(SRC_FILES)
 	mkdir -p bin
@@ -47,46 +48,31 @@ bin/mips_simulator: $(SRC_FILES)
 # Dummy for build simulator to conform to spec
 simulator: bin/mips_simulator
 
-simulator1: bin/mips_simulator src/test1.bin
-	./bin/mips_simulator src/test1.bin
-	
-simulator2: bin/mips_simulator src/test2.bin
-	./bin/mips_simulator src/test2.bin
-	
-simulator3: bin/mips_simulator src/test3.bin
-	./bin/mips_simulator src/test3.bin
-
-simulator4: bin/mips_simulator src/test4.bin
-	./bin/mips_simulator src/test4.bin
-
-simulator_addiu1: bin/mips_simulator src/new_addiu_1.bin
-	./bin/mips_simulator src/new_addiu_1.bin
-
-simulator_addiu2: bin/mips_simulator src/new_addiu_2.bin
-	./bin/mips_simulator src/new_addiu_2.bin
-
-simulator_sll: bin/mips_simulator src/new_sll.bin
-	./bin/mips_simulator src/new_sll.bin
-
-simulator_jr: bin/mips_simulator src/new_JR.bin
-	./bin/mips_simulator src/new_JR.bin
 
 #----------------------------------------------------
 #TESTBENCH
 #----------------------------------------------------
 
-
 # Dummy for build testbench to conform to spec. Could do nothing. 
-testbench: 
-	mkdir -p bin
-	$(CC) $(CPPFLAGS) test/tb.cpp -o bin/mips_testbench
+#bash file executable to be held in bin/mips_testbench. Can copy from test.
+#u+x bin/mips_testbench (give user permissions, making it executable)
+#TODO: add functionality to make bin folder if not present.
+#MAKE: error: always saying "up to date"
 
-#Run tests on MIPS_Simulator
-bin/mips_testbench: bin/mips_simulatorg
-	#run tests
-	#any temp files to be stored in test/temp
-	#output of testbench created in test/output. i.e per test logfiles
-	#once all tests run, print CSV file to stdout, with each row corresponding to one execution of Simulator under test.
+testbench: bin/mips_testbench
 
+bin/mips_testbench: 
+	mkdir -p bin 
+	cp -a test/mips_testbench bin/
+	chmod u+x bin/mips_testbench
+
+runtests: bin/mips_testbench bin/mips_simulator
+	./bin/mips_testbench bin/mips_simulator
+	
 clean:
 	rm bin/mips_simulator
+	rm bin/mips_testbench
+
+cleartests:
+	rm test/output/log.csv
+	rm test/output/testing.csv
